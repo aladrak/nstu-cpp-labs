@@ -1,7 +1,6 @@
 // x^2 - sin(5x) = 0
 // x.min = -2.0     x.max = 1.0     h = 0.05
 
-
 #include <iostream>
 #include <cmath>
 #include <list>
@@ -31,6 +30,7 @@ double chord(double a, double b, int* c)
     else { return halving(x, b, c); }
 }
 
+// Метод касательных
 double tangent(double x0, int* c) 
 {
     double x1 = x0 - func(x0) / (2*x0 - 5*cos(5*x0)); (*c)++;
@@ -38,21 +38,24 @@ double tangent(double x0, int* c)
     else {return tangent(x1, c);}
 }
 
+// Метод итераций
 double iteration(double x0, double x1, int* c) 
 {
-    double z = x0 - 1/(-2.061) * (2*x0 - 5*cos(5*x0)); (*c)++;
-    if (criteria(z, x0)) { return z; }
+    // double z = sqrt(abs(sin(5 * x0))); 
+    double z = x0 - 0.1 * (x0 * x0 - sin(5 * x0));
+    (*c)++;
+    if (criteria(z, x0) || *c >= 1000) { return z; } 
     else { return iteration(z, x0, c); }
 }
 
 int main()
 {
     list<pair<double, double>> listPair;
+    cout << "x \tf(x)" << endl;
     for (double i = X_MIN; i < X_MAX; i += H) 
     {
-        // if (i > -.05 && i < .05) i = 0;
         listPair.push_back(make_pair(i, i + 0.05));
-        // cout << i << " \t" << func(i) << endl;
+        cout << i << " \t" << func(i) << endl;
     }
     for (pair<double, double> i : listPair) 
     {
@@ -67,7 +70,7 @@ int main()
             *c = 0;
             cout << "Tangent = \t" << tangent(i.first, c) << " \titrs: " << *c << endl;
             *c = 0;
-            // cout << "Iteration = \t" << iteration(i.first, i.second, c) << " \titrs: " << *c << endl;
+            cout << "Iteration = \t" << iteration(i.first, i.second, c) << " \titrs: " << *c << endl;
         }
     }
 }
