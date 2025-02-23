@@ -43,7 +43,8 @@ double iteration(double x0, int* c)
 {
     // double z = sqrt(abs(sin(5 * x0))); 
     double z;
-    for (; *c < 100; (*c)++) {
+    for (; *c < 100; (*c)++) 
+    {
         z = x0 - 0.1 * (func(x0));
         if (criteria(z, x0)) {return z;}
         x0 = z;
