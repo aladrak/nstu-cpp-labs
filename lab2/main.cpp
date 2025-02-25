@@ -89,7 +89,7 @@ int SortDataset (char *filename)
 int main() 
 {
     srand(time(NULL));
-    trSmooth();
+    // trSmooth();
     string path("./data.txt");
     GenerateDataset(path.data(), 1033);
     cout << "Shell sort" << endl <<
