@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <utility>
+#include <cmath>
 using namespace std;
 
 int dwRand() { return (rand() % 7 + 1) * 100 + (rand() % 8) * 10 + (rand() % 8); }
@@ -59,36 +60,29 @@ void GenerateDataset (char *filename, int num)
     f.close();
 }
 
+void trSmooth() {
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 7; j++) { cout << pow(2, i) * pow(3, j) << endl; }
+    }
+}
+
 int SortDataset (char *filename)
 {
     pair<int*, int> dataPair = readFile(filename);
-    int *arr = dataPair.first, comps = 0; 
+    int *arr = dataPair.first;
+    unsigned long comps = 0; 
     size_t size = dataPair.second;
-    int *gaps = new int[]{1, 4, 10, 23, 57, 132, 301, 701};
+    // int gaps[]{1750, 701, 301, 132, 57, 23, 10, 4, 1}; // Ciura seq
+    int gaps[]{729, 576, 512, 432, 384, 288, 256, 243, 192, 144, 128, 
+        96, 81, 72, 64, 54, 48, 36, 32, 24, 16, 18, 12, 9, 6, 3, 2, 1}; // Pratt seq
 
-    for (int s = size / 2; s > 0; s /= 2) {
+    for (int s : gaps) {
         for (int i = s; i < size; ++i) {
-            for (int j = i - s; j >= 0 && arr[j] > arr[j + s]; j -= s) {
-                comps++;
+            for (int j = i - s; j >= 0 && arr[j] > arr[j + s]; j -= s, ++comps) {
                 swap(arr[j], arr[j + s]);
             }
         }
     }
-
-    // for (int gap = size/2; gap > 0; gap /= 2)
-    // {
-    //     for (int i = gap; i < size; i += 1)
-    //     {
-    //         int temp = arr[i];
-    //         int j;            
-    //         for (j = i; j >= gap && arr[j - gap] > temp; j -= gap) 
-    //         {
-    //             arr[j] = arr[j - gap];
-    //             comps++;
-    //         }
-    //         arr[j] = temp;
-    //     }
-    // }
 
     string s(filename); 
     s.insert(s.find(".", 2), ".sort");
@@ -101,6 +95,7 @@ int SortDataset (char *filename)
 int main() 
 {
     srand(time(NULL));
+    trSmooth();
     string path("./data.txt");
     GenerateDataset(path.data(), 1033);
     cout << "Shell sort" << endl <<
