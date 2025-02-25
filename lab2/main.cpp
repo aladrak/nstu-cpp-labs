@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 #include <utility>
-#include <cmath>
+// #include <cmath>
 using namespace std;
 
 int dwRand() { return (rand() % 7 + 1) * 100 + (rand() % 8) * 10 + (rand() % 8); }
@@ -58,12 +58,6 @@ void GenerateDataset (char *filename, int num)
         }
     }
     f.close();
-}
-
-void trSmooth() {
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 7; j++) { cout << pow(2, i) * pow(3, j) << endl; }
-    }
 }
 
 int SortDataset (char *filename)
