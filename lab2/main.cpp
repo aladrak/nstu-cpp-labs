@@ -11,6 +11,7 @@ using namespace std;
 // Генерация целого трехразрядного восьмиричного числа
 int dwRand() { return (rand() % 2 ? 1 : -1) * ( (rand() % 7 + 1) * 100 + (rand() % 8) * 10 + (rand() % 8) ); }
 
+// Считывание строк файла, возвращает пару<массив, размер>
 pair<int*, size_t> readFile(char *path) 
 {
     ifstream f(path, ios::in);
@@ -39,6 +40,7 @@ pair<int*, size_t> readFile(char *path)
     return make_pair(arr, i);
 }
 
+// Запись в файл
 void writeFile(string path, int *arr, size_t size) 
 {
     ofstream f(path, ios::out); unsigned i;
@@ -131,7 +133,4 @@ int main()
     }
     compsArr -= i;
     generateTable("./table.txt", compsArr, 10);
-
-    GenerateDataset(path.data(), 16);
-    SortDataset(path.data());
 }
