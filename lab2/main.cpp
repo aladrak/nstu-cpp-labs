@@ -1,4 +1,3 @@
-// Вариант 9
 #include <iostream>
 #include <ctime>
 #include <cmath>
@@ -8,10 +7,11 @@
 #include <iomanip>
 using namespace std;
 
-// Генерация целого трехразрядного восьмиричного числа
+// Generate a three-digit octal integer
 int dwRand() { return (rand() % 2 ? 1 : -1) * ( (rand() % 7 + 1) * 100 + (rand() % 8) * 10 + (rand() % 8) ); }
 
-// Считывание строк файла, возвращает пару<массив, размер>
+/* Reads file lines, return pair<array, size>
+   increases the capacity of the array if overflowed */
 pair<int*, size_t> readFile(char *path) 
 {
     ifstream f(path, ios::in);
@@ -40,7 +40,7 @@ pair<int*, size_t> readFile(char *path)
     return make_pair(arr, i);
 }
 
-// Запись в файл
+// Simple write to file
 void writeFile(string path, int *arr, size_t size) 
 {
     ofstream f(path, ios::out); unsigned i;
@@ -73,13 +73,14 @@ int SortDataset (char *filename)
     int gaps[]{2660, 1182, 525, 233, 103, 46, 20, 9, 4, 1}; // Tokuda seq
 
     // Shell sort
-    for (int gap : gaps) {
-
-        for (int *current = arr + gap; current < arr + size; ++current) {
+    for (int gap : gaps) 
+    {
+        for (int *current = arr + gap; current < arr + size; ++current) 
+        {
             int *left = current - gap;
             int *right = current;
-
-            for (comps += 1; left >= arr && *left > *right; ++comps) {
+            for (comps += 1; left >= arr && *left > *right; ++comps) 
+            {
                 swap(*left, *right);
                 right = left;
                 left -= gap;
@@ -94,7 +95,8 @@ int SortDataset (char *filename)
     return comps;
 }
 
-void generateTable(string path, unsigned *arr, size_t size) {
+void generateTable(string path, unsigned *arr, size_t size) 
+{
     ofstream f(path, ios::out);
     if (f.is_open()) 
     {
