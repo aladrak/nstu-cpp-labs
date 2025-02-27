@@ -8,7 +8,7 @@
 using namespace std;
 
 // Generate a three-digit octal integer
-int dwRand() { return (rand() % 2 ? 1 : -1) * ( (rand() % 7 + 1) * 100 + (rand() % 8) * 10 + (rand() % 8) ); }
+int octRand() { return (rand() % 2 ? 1 : -1) * ( (rand() % 7 + 1) * 100 + (rand() % 8) * 10 + (rand() % 8) ); }
 
 /* Reads file lines, return pair<array, size>
    increases the capacity of the array if overflowed */
@@ -57,7 +57,7 @@ void GenerateDataset (char *filename, int num)
 {
     int *arr = new int[num]; unsigned i;
     for (i = 0; i < num; ++i, ++arr)
-        *arr = dwRand();
+        *arr = octRand();
     arr -= i;
     writeFile(filename, arr, num);
     delete[] arr;
