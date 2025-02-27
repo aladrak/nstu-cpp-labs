@@ -1,79 +1,86 @@
 // Вариант 9
 #include <iostream>
 #include <ctime>
+#include <cmath>
 #include <fstream>
 #include <string>
 #include <utility>
-// #include <cmath>
+#include <iomanip>
 using namespace std;
 
-int dwRand() { return (rand() % 7 + 1) * 100 + (rand() % 8) * 10 + (rand() % 8); }
+// Генерация целого трехразрядного восьмиричного числа
+int dwRand() { return (rand() % 2 ? 1 : -1) * ( (rand() % 7 + 1) * 100 + (rand() % 8) * 10 + (rand() % 8) ); }
 
-pair<int*, int> readFile(char *path) 
+pair<int*, size_t> readFile(char *path) 
 {
     ifstream f(path, ios::in);
-    int i = 0, cap = 1024;
+    unsigned i = 0, cap = 1024;
     int *memloc = new int[cap];
     int *arr = memloc;
     if (f.is_open()) 
     {
-        for (string s; getline(f, s); ++i) 
+        for (string s; getline(f, s); ++i, ++arr) 
         {
             if (i > cap - 1) // extend capacity
             {
                 memloc = new int[cap * 2];
+                arr -= i;
                 copy(arr, arr + cap, memloc);
                 cap *= 2;
                 delete[] arr;
-                arr = (memloc);
+                arr = (memloc); 
+                arr += i;
             }
-            *(arr + i) = stoi(s);
+            *arr = stoi(s);
         }
     }
     f.close();
+    arr -= i;
     return make_pair(arr, i);
 }
 
 void writeFile(string path, int *arr, size_t size) 
 {
-    ofstream f(path, ios::out);
+    ofstream f(path, ios::out); unsigned i;
     if (f.is_open()) 
     {
-        for (int i = 0; i < size; ++i) 
-        {
-            f << *(arr + i) << endl;
-        }
+        for (i = 0; i < size; ++i, ++arr) 
+            f << *arr << endl;
     }
+    arr -= i;
     f.close();
 }
 
 void GenerateDataset (char *filename, int num) 
 {
-    ofstream f(filename, ios::out);
-    if (f.is_open()) 
-    {
-        for (int i = 0; i < num; ++i) 
-        {
-            f << dwRand() << endl;
-        }
-    }
-    f.close();
+    int *arr = new int[num]; unsigned i;
+    for (i = 0; i < num; ++i, ++arr)
+        *arr = dwRand();
+    arr -= i;
+    writeFile(filename, arr, num);
+    delete[] arr;
 }
 
 int SortDataset (char *filename)
 {
-    pair<int*, int> dataPair = readFile(filename);
-    int *arr = dataPair.first;
-    unsigned long comps = 0; 
+    pair<int*, size_t> dataPair = readFile(filename);
+    int *arr = dataPair.first; 
     size_t size = dataPair.second;
+    unsigned long comps = 0; 
     // int gaps[]{1750, 701, 301, 132, 57, 23, 10, 4, 1}; // Ciura seq
-    int gaps[]{729, 576, 512, 432, 384, 288, 256, 243, 192, 144, 128, 
-        96, 81, 72, 64, 54, 48, 36, 32, 24, 16, 18, 12, 9, 6, 3, 2, 1}; // Pratt seq
+    int gaps[]{2660, 1182, 525, 233, 103, 46, 20, 9, 4, 1}; // Tokuda seq
 
-    for (int s : gaps) {
-        for (int i = s; i < size; ++i) {
-            for (int j = i - s; j >= 0 && arr[j] > arr[j + s]; j -= s, ++comps) {
-                swap(arr[j], arr[j + s]);
+    // Shell sort
+    for (int gap : gaps) {
+
+        for (int *current = arr + gap; current < arr + size; ++current) {
+            int *left = current - gap;
+            int *right = current;
+
+            for (comps += 1; left >= arr && *left > *right; ++comps) {
+                swap(*left, *right);
+                right = left;
+                left -= gap;
             }
         }
     }
@@ -85,13 +92,46 @@ int SortDataset (char *filename)
     return comps;
 }
 
+void generateTable(string path, unsigned *arr, size_t size) {
+    ofstream f(path, ios::out);
+    if (f.is_open()) 
+    {
+        f << "   num  | " << 
+        setw(11) << " Тe  | " << 
+        setw(13) << " Т1  |" <<
+        setw(11) << " Т2  |" <<
+        setw(17) << " Тe / Т1  |" <<
+        setw(12) << " Тe / Т2" << endl;
+        for (double n = 8; n <= 4096; n *= 2, ++arr) 
+        { 
+            f << "  " << setw(4) << n << 
+            "  | " << setw(6) << *arr << 
+            "  | " << setw(9) << static_cast<int>(n*n) << 
+            "  | " << setw(6) << n*log2(n) <<
+            "  | " << setw(11) << static_cast<double>(*arr) / (n * n) <<
+            "  | " << setw(9) << static_cast<double>(*arr) / (n*log2(n)) << endl;
+        }
+    }
+    f.close();
+    arr -= size; 
+    delete[] arr;
+}
+
 
 int main() 
 {
     srand(time(NULL));
-    // trSmooth();
     string path("./data.txt");
-    GenerateDataset(path.data(), 1033);
-    cout << "Shell sort" << endl <<
-    "Compare count: \t" << SortDataset(path.data()) << endl;
+    unsigned *compsArr = new unsigned[10];
+    int i = 0;
+    for (int n = 8; n <= 4096; n *= 2, ++i, ++compsArr) {
+        GenerateDataset(path.data(), n);
+        *compsArr = SortDataset(path.data());
+        cout << n << " \telements -> " << *compsArr << endl;
+    }
+    compsArr -= i;
+    generateTable("./table.txt", compsArr, 10);
+
+    GenerateDataset(path.data(), 16);
+    SortDataset(path.data());
 }
