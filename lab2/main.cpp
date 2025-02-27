@@ -128,7 +128,8 @@ int main()
     string path("./data.txt");
     unsigned *compsArr = new unsigned[10];
     int i = 0;
-    for (int n = 8; n <= 4096; n *= 2, ++i, ++compsArr) {
+    for (int n = 8; n <= 4096; n *= 2, ++i, ++compsArr) 
+    {
         GenerateDataset(path.data(), n);
         *compsArr = SortDataset(path.data());
         cout << n << " \telements -> " << *compsArr << endl;
