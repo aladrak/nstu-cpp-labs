@@ -4,6 +4,7 @@
 #include <ctime>
 #include <utility>
 #include <conio.h>
+#include <cstring>
 using namespace std;
 
 const int STR_SIZE {5};
@@ -15,7 +16,7 @@ char *randStr()
     a += STR_SIZE; *a = '\0';
     for (--a; a >= s; --a) 
     {
-        *a = rand() % 57 + 65;
+        *a = rand() % 25 + 65;
     }
     return s;
 }
@@ -23,15 +24,15 @@ char *randStr()
 class CyclicList 
 {
 private:
-    int _count;
-    bool _isEmpty;
+    int _count = 0;
+    bool _isEmpty = true;
     struct Node 
     {
         Node *next;
         int num;
         char *str;
     };
-    Node *_first;
+    Node *_first = nullptr;
     Node *newElement(char *s) 
     {
         Node *newElem = new Node();
@@ -46,32 +47,50 @@ private:
         delete elem;
     }
 public:
-    CyclicList() { _isEmpty = true; _count = 0; _first = nullptr; }
-
+    CyclicList() { }
+    bool IsEmpty() { return _isEmpty; }
+    void recList(Node *curr, char *s) {
+        if (strcmp(curr->str, s) > 0) {}
+    }
     void AddElem() 
     {
         Node *elem = newElement(randStr()); ++_count;
         if (_isEmpty)
         {
-            elem->next = nullptr;
             _first = elem;
             _isEmpty = false;
+            return;
         }
-        else if (_first->next == nullptr) 
+        if (_first->next == nullptr) 
         {
+            elem->next = _first;
             _first->next = elem;
-            elem->next = _first;
-        }
-        else
-        {
-            Node *curr = _first;
-            while (curr->next != _first) 
+            if (strcmp(_first->str, elem->str) > 0) 
             {
-                curr = curr->next;
+                _first = elem;
+                return;
             }
-            curr->next = elem;
-            elem->next = _first;
+        
+        Node *curr = _first;
+        Node *prev = _first;
+        while (1)
+        {
+            if (strcmp(curr->str, elem->str) < 0) 
+            {
+
+            }
+            if (curr->next == _first) {
+
+            }
         }
+        if (strcmp(curr->str, elem->str) > 0)
+        {
+            elem->next = curr;
+            prev->next = elem;
+            return;
+        }
+        curr->next = elem;
+        elem->next = _first;
     }
 
     void PrintAll() 
@@ -89,16 +108,29 @@ public:
     void Remove()
     {
         if (_isEmpty) { cerr << "Empty list!" << endl; return; }
-        while (1) 
+        Node *picked = _first;
+        while (1)
         {
             char c = _getch();
+            switch (c) 
+            {
+                case 87: // W
+                    break;
+                case 83: // S
+                    break;
+                case 8: // Backspace
+                    freeElem(picked);
+                    break; 
+            }
         }
     }
 
     pair<int, char*> Find(string s) 
     {
         if (_isEmpty) { cerr << "Empty list!" << endl; return make_pair(NULL, nullptr); }
+        Node *elem = _first;
 
+        return make_pair(elem->num, elem->str);
     }
 };
 
@@ -111,6 +143,6 @@ int main()
         clist.AddElem();
     }
     clist.PrintAll();
-    clist.Remove();
+    // clist.Remove();
     // cout << randStr() << endl;
 }
