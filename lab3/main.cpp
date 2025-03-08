@@ -7,32 +7,19 @@
 #include <cstring>
 using namespace std;
 
-const int STR_SIZE {5};
-
-// Generates random string
-char *randStr() 
+struct Node 
 {
-    char *s = new char[STR_SIZE + 1], *a = s;
-    a += STR_SIZE; *a = '\0';
-    for (--a; a >= s; --a) 
-    {
-        *a = rand() % 25 + 65;
-    }
-    return s;
-}
+    Node *next;
+    int num;
+    char *str;
+};
 
 class CyclicList 
 {
 private:
-    int _count = 0;
-    bool _isEmpty = true;
-    struct Node 
-    {
-        Node *next;
-        int num;
-        char *str;
-    };
-    Node *_first = nullptr;
+    int _count;
+    bool _isEmpty;
+    Node *_first;
     Node *newElement(char *s) 
     {
         Node *newElem = new Node();
@@ -41,108 +28,255 @@ private:
         newElem->str = s;
         return newElem;
     }
+    Node *getPrev(Node *first)
+    {
+        Node *prev = nullptr;
+        Node *curr = first;
+        do
+        {
+            prev = curr;
+            curr = curr->next;
+        } while (curr != first);
+        return prev;
+    }
     void freeElem(Node *elem) 
     {
         elem->next = nullptr;
+        delete[] elem->str;
         delete elem;
     }
 public:
-    CyclicList() { }
-    bool IsEmpty() { return _isEmpty; }
-    void recList(Node *curr, char *s) {
-        if (strcmp(curr->str, s) > 0) {}
-    }
-    void AddElem() 
+    CyclicList(): _first(nullptr), _isEmpty(true), _count(0) {}
+    ~CyclicList() 
     {
-        Node *elem = newElement(randStr()); ++_count;
-        if (_isEmpty)
+        if (_isEmpty) return;
+        Node *curr = _first;
+        do
+        {
+            Node *temp = curr;
+            curr = curr->next;
+            delete[] temp->str;
+            delete temp;
+        } while (curr != _first);
+    }
+    bool IsEmpty() { return _isEmpty; }
+    int Count() { return _count; }
+    void AddElem(char *s) 
+    {
+        Node *elem = newElement(s); 
+        ++_count;
+        if (_isEmpty) 
         {
             _first = elem;
+            elem->next = elem;
             _isEmpty = false;
             return;
         }
-        if (_first->next == nullptr) 
-        {
-            elem->next = _first;
-            _first->next = elem;
-            if (strcmp(_first->str, elem->str) > 0) 
-            {
-                _first = elem;
-                return;
-            }
-        
-        Node *curr = _first;
-        Node *prev = _first;
-        while (1)
-        {
-            if (strcmp(curr->str, elem->str) < 0) 
-            {
 
-            }
-            if (curr->next == _first) {
-
-            }
-        }
-        if (strcmp(curr->str, elem->str) > 0)
+        Node *current = _first;
+        Node *prev = nullptr;
+        do 
         {
-            elem->next = curr;
+            if (strcmp(elem->str, current->str) <= 0) 
+            {
+                elem->next = current;
+                if (prev != nullptr) 
+                {
+                    prev->next = elem;
+                    return;
+                } 
+                else if (_count == 2) // for second elem
+                {
+                    _first->next = elem;
+                    _first = elem;
+                } 
+                else 
+                {
+                    getPrev(_first)->next = elem;
+                    _first = elem;
+                }
+                break;
+            }
+            prev = current;
+            current = current->next;
+        } while (current != _first);
+
+        if (prev != nullptr && strcmp(elem->str, prev->str) > 0) 
+        {
             prev->next = elem;
-            return;
+            elem->next = _first;
         }
-        curr->next = elem;
-        elem->next = _first;
     }
 
     void PrintAll() 
     {
-        if (_isEmpty) { cerr << "Empty list!" << endl; return; }
+        if (_isEmpty) { cerr << "List is empty!" << endl; return; }
         Node *curr = _first;
-        while (curr->next != _first && curr->next != nullptr) 
+        do 
         {
-            cout << curr->num << " " << curr->str << endl;
+            cout << "" << curr->num << ": " << curr->str << endl;
             curr = curr->next;
-        }
-        cout << curr->num << " " << curr->str << endl;
+        } while (curr != _first);
     }
 
     void Remove()
     {
-        if (_isEmpty) { cerr << "Empty list!" << endl; return; }
+        if (_isEmpty) { cerr << "List is empty!" << endl; return; }
+        if (_count == 1) { freeElem(_first); --_count; _isEmpty = true; _first = nullptr; } 
         Node *picked = _first;
+        cout << "\n\n\n\n\n\n\n\n\n\n" << endl;
         while (1)
         {
+            Node *curr = _first;
+            do 
+            {
+                if (curr == picked) 
+                    cout << ">> " << curr->num << ": " << curr->str << " <<" << endl;
+                else 
+                    cout << "" << curr->num << ": " << curr->str << endl;
+                curr = curr->next;
+            } while (curr != _first);
+            cout << "For navigate use [w] and [s], for removal [backspace]: ";
+
             char c = _getch();
             switch (c) 
             {
-                case 87: // W
+                case 'w':
+                    picked = getPrev(picked);
                     break;
-                case 83: // S
+                case 's':
+                    picked = picked->next;
                     break;
                 case 8: // Backspace
+                    Node *prev = getPrev(picked);
+                    if (picked == _first) {_first = picked->next;}
+                    prev->next = picked->next;
+                    cout << "\n\n\n\n\n\n\n\n\n\n" << endl;
+                    cout << "Successful removal " << picked->num << ": " << picked->str << "\n" << endl;
                     freeElem(picked);
-                    break; 
+                    return;
             }
+            cout << "\n\n\n\n\n\n\n\n\n\n" << endl;
         }
     }
 
-    pair<int, char*> Find(string s) 
+    Node *FindBySubstr(char *s) 
     {
-        if (_isEmpty) { cerr << "Empty list!" << endl; return make_pair(NULL, nullptr); }
-        Node *elem = _first;
+        if (_isEmpty || s == nullptr || *s == '\0') 
+            return nullptr;
+        
+        Node *current = _first;
+        do 
+        {
+            if (strstr(current->str, s) != nullptr) 
+                return current;
+            current = current->next;
+        } while (current != _first);
 
-        return make_pair(elem->num, elem->str);
+        return nullptr;
     }
 };
+
+// Generates a random string (char*) of numbers and letters (upper/lower case)
+char *randStr(unsigned strSize) 
+{
+    char *s = new char[strSize + 1], *a = s;
+    a += strSize; *a = '\0';
+    for (--a; a >= s; --a) 
+    {
+        switch (rand() % 3) {
+            case 0:
+                *a = rand() % ('Z' - 'A') + 'A'; break;
+            case 1:
+                *a = rand() % ('0' - '9') + '0'; break;
+            case 2:
+                *a = rand() % ('a' - 'z') + 'a'; break;
+        }
+    }
+    return s;
+}
+
+int enterNum(string str) 
+{
+    auto tryParse = [](string &i, int &o) -> bool {
+        try { o = stoi(i); } 
+        catch (invalid_argument) { return false; }
+        return true;
+    };
+    int cnt = 0;
+    string s;
+    do
+    {
+        cout << str;
+        getline(cin, s);
+    } while (!tryParse(s, cnt));
+    return cnt;
+}
+
+char *enterStr(string q) 
+{
+    cout << q;
+    // string str;
+    // getline(cin, str);
+    char *s = new char[6];
+    cin >> s;
+    // cin.get();
+    return s;
+}
 
 int main() 
 {
     srand(time(NULL));
     CyclicList clist{};
-    for (int i = 0; i < 10; i++) 
+    while (1) 
     {
-        clist.AddElem();
+        cout << "\n\n\n\n\n\n\n\n\n\n" << endl;
+        cout << "Welcome to singly linked circular list!" << endl
+        << " [1] Add elements" << endl
+        << " [2] Remove element" << endl
+        << " [3] Find by substr" << endl
+        << " [4] Print all elements" << endl
+        << " [0] Exit programm" << endl << endl;
+        int swt = enterNum("Enter number: ");
+        switch (swt) {
+        case 0:
+            return 0;
+        case 1: {
+            int cnt = enterNum("Enter count: "); 
+            // char swt = 0;
+            // while (swt != 'Y' && swt != 'N') {
+            //     cout << "Enter the line yourself? [Y/N]: ";
+            //     cin >> swt;
+            // }
+
+            for (int i = 0; i < cnt; ++i) 
+            {
+                clist.AddElem(
+                    // swt == 'Y' ? enterStr("Enter string for element: ") : 
+                    randStr(5));
+            }
+            break;
+        }
+        case 2:
+            clist.Remove();
+            break;
+        case 3: {
+            char *s = enterStr("Enter the sub-string you want to find: ");
+            Node *res = clist.FindBySubstr(s);
+            if (res != nullptr)
+                cout << "Found element: " << res->num << " " << res->str << endl;
+            else
+                cout << "Nothing found" << endl;
+            delete[] s;
+            break;
+        }
+        case 4:
+            clist.PrintAll(); 
+            break;
+        default:
+            cout << "There are no such nums." << endl;
+            continue;
+            break;
+        }
     }
-    clist.PrintAll();
-    // clist.Remove();
-    // cout << randStr() << endl;
 }
