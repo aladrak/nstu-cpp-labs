@@ -41,6 +41,7 @@ private:
     }
     void freeElem(Node *elem) 
     {
+        --_count;
         elem->next = nullptr;
         delete[] elem->str;
         delete elem;
@@ -122,7 +123,14 @@ public:
     void Remove()
     {
         if (_isEmpty) { cerr << "List is empty!" << endl; return; }
-        if (_count == 1) { freeElem(_first); --_count; _isEmpty = true; _first = nullptr; } 
+        if (_count == 1) 
+        { 
+            cout << endl << "Successful removal " << _first->num << ": " << _first->str << endl;
+            _isEmpty = true;
+            freeElem(_first);
+            _first = nullptr;
+            return;
+        } 
         Node *picked = _first;
         cout << "\n\n\n\n\n\n\n\n\n\n" << endl;
         while (1)
@@ -136,7 +144,7 @@ public:
                     cout << "" << curr->num << ": " << curr->str << endl;
                 curr = curr->next;
             } while (curr != _first);
-            cout << "For navigate use [w] and [s], for removal [backspace]: ";
+            cout << "For navigate use [w / s], for removal [backspace]: ";
 
             char c = _getch();
             switch (c) 
@@ -148,13 +156,16 @@ public:
                     picked = picked->next;
                     break;
                 case 8: // Backspace
+                {
                     Node *prev = getPrev(picked);
-                    if (picked == _first) {_first = picked->next;}
+                    if (picked == _first) _first = picked->next;
                     prev->next = picked->next;
-                    cout << "\n\n\n\n\n\n\n\n\n\n" << endl;
-                    cout << "Successful removal " << picked->num << ": " << picked->str << "\n" << endl;
+                    cout << endl << "Successful removal " << picked->num << ": " << picked->str << endl;
                     freeElem(picked);
+                    if (_count == 0) _isEmpty = true; 
                     return;
+                }
+                default: continue;
             }
             cout << "\n\n\n\n\n\n\n\n\n\n" << endl;
         }
@@ -259,6 +270,8 @@ int main()
         }
         case 2:
             clist.Remove();
+            cout << "Press any key...";
+            _getch();
             break;
         case 3: {
             char *s = enterStr("Enter the sub-string you want to find: ");
@@ -266,12 +279,16 @@ int main()
             if (res != nullptr)
                 cout << "Found element: " << res->num << " " << res->str << endl;
             else
-                cout << "Nothing found" << endl;
+                cout << "Nothing found." << endl;
+            cout << "Press any key...";
+            _getch();
             delete[] s;
             break;
         }
         case 4:
             clist.PrintAll(); 
+            cout << "Press any key...";
+            _getch();
             break;
         default:
             cout << "There are no such nums." << endl;
