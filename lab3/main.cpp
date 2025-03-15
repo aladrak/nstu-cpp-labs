@@ -165,7 +165,7 @@ public:
                     if (_count == 0) _isEmpty = true; 
                     return;
                 }
-                default: continue;
+                default: ;
             }
             cout << "\n\n\n\n\n\n\n\n\n\n" << endl;
         }
@@ -185,6 +185,22 @@ public:
         } while (current != _first);
 
         return nullptr;
+    }
+
+    void ClearAll() 
+    {
+        if (_isEmpty) { cerr << "List is empty!" << endl; return; }
+        Node *curr = _first->next;
+        do 
+        {
+            Node *prev = curr;
+            curr = curr->next;
+            freeElem(prev);
+        } while (curr != _first);
+        _isEmpty = true;
+        freeElem(_first);
+        _first = nullptr;
+        cout << "Successful deletion of all elements." << endl;
     }
 };
 
@@ -247,7 +263,8 @@ int main()
         << " [2] Remove element" << endl
         << " [3] Find by substr" << endl
         << " [4] Print all elements" << endl
-        << " [0] Exit programm" << endl << endl;
+        << " [5] Remove all elements"<< endl
+        << " [0] Exit program" << endl << endl;
         int swt = enterNum("Enter number: ");
         switch (swt) {
         case 0:
@@ -290,9 +307,15 @@ int main()
             cout << "Press any key...";
             _getch();
             break;
+        case 5:
+            clist.ClearAll();
+            cout << "Press any key...";
+            _getch();
+            break;
         default:
             cout << "There are no such nums." << endl;
-            continue;
+            cout << "Press any key...";
+            _getch();
             break;
         }
     }
