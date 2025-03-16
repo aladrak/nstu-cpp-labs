@@ -176,13 +176,13 @@ public:
         if (_isEmpty || s == nullptr || *s == '\0') 
             return nullptr;
         
-        Node *current = _first;
+        Node *curr = _first;
         do 
         {
-            if (strstr(current->str, s) != nullptr) 
-                return current;
-            current = current->next;
-        } while (current != _first);
+            if (strstr(curr->str, s) != nullptr) 
+                return curr;
+            curr = curr->next;
+        } while (curr != _first);
 
         return nullptr;
     }
