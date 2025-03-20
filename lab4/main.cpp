@@ -4,8 +4,8 @@
 #include <ctime>
 using namespace std;
 
-const int MAX_BRANCHES = 3;
-
+// Вершина всегда состоит из 4 элементов: поля данных и 3 указателей на возможные 
+// вершины нижнего уровня. Указателям, не ссылающимся на вершины, присваивается значение NULL.
 int doRand() { return rand() % 2001 - 1000; }
 
 struct Vertex 
@@ -15,46 +15,82 @@ struct Vertex
     Vertex *b1;
     Vertex *b2;
     Vertex *b3;
-    // Vertex *(*branch);
 };
 
 
 class TripleTree
 {
 private:
-    Vertex *_head;
-    unsigned _maxBranches;
-    Vertex *newVertex() 
+    Vertex *_root;
+    Vertex *newVertex(int val) 
     {
         Vertex *elem = new Vertex();
-        elem->value = 0;
+        elem->value = val;
         elem->count = 0;
-        elem->b1 = nullptr;
-        // Vertex **branch = elem->branch;
-        // int i;
-        // for (i = 0; i < _maxBranches; ++i, ++branch) 
-        // {
-        //     *branch = nullptr;
-        // }
+        elem->b1 = elem->b2 = elem->b3 = nullptr;
         return elem;
     }
+    Vertex *recurAdd(Vertex *p, int val) 
+    {
+        if (p == nullptr) 
+        {
+            p = newVertex(val); p->count = 1;
+        }
+        else 
+        {
+            p->count++;
+            if (p->b1 != nullptr && p->b2 != nullptr && p->b3 != nullptr)
+            {
+                if (p->b1->count % 3 <= p->b2->count % 3)
+                    p->b1 = recurAdd(p->b1, val);
+                else if (p->b2->count % 3 <= p->b3->count % 3)
+                    p->b2 = recurAdd(p->b2, val);
+                else
+                    p->b3 = recurAdd(p->b3, val);
+            }
+            else if (p->b1 == nullptr) 
+                p->b1 = recurAdd(p->b1, val);
+            else if (p->b2 == nullptr) 
+                p->b2 = recurAdd(p->b2, val);
+            else if (p->b3 == nullptr)
+                p->b3 = recurAdd(p->b3, val);
+        }
+        return p;
+    }
+    void recurPrint(Vertex *p) 
+    {
+        if (p != nullptr) 
+        {
+            cout << p->count << " " << p->value << endl;
+            recurPrint(p->b1);
+            recurPrint(p->b2);
+            recurPrint(p->b3);
+        }
+    }
 public:
-    TripleTree(unsigned maxBranches): _head(nullptr), _maxBranches(maxBranches) {}
+    TripleTree(): _root(nullptr) {}
+
+    bool IsEmpty() { return _root == nullptr; }
+
     void AddVertex(int val) 
     {
-        Vertex *elem = newVertex();
-        _head = elem;
-        elem->count = 1;
-        elem->value = val;
+        _root = recurAdd(_root, val);
     }
+
     void PrintAll() 
     {
-        cout << _head->value << endl;
+        recurPrint(_root);
     }
 };
 
-int main() {
-    TripleTree cTree{MAX_BRANCHES};
-    cTree.AddVertex(2);
+int main() 
+{
+    srand(time(NULL));
+    TripleTree cTree;
+    for (int i = 0; i < 27; i++) 
+    {
+        cTree.AddVertex(doRand());
+    }
+    cTree.PrintAll();
     cout << "Hello" << endl;
 }
