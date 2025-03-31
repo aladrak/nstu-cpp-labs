@@ -64,6 +64,7 @@ private:
         {
             cout << p->count << " " << p->value << endl;
             recurPrint(p->b1);
+            // cout << p->count << " " << p->value << endl;
             recurPrint(p->b2);
             recurPrint(p->b3);
         }
@@ -88,7 +89,7 @@ int main()
 {
     srand(time(NULL));
     TripleTree cTree;
-    for (int i = 0; i < 30; i++) 
+    for (int i = 0; i < 6; i++) 
     {
         cTree.AddVertex(doRand());
     }
