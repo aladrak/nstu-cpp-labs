@@ -6,6 +6,7 @@ using namespace std;
 
 // Вершина всегда состоит из 4 элементов: поля данных и 3 указателей на возможные 
 // вершины нижнего уровня. Указателям, не ссылающимся на вершины, присваивается значение NULL.
+
 int doRand() { return rand() % 2001 - 1000; }
 
 struct Vertex 
@@ -87,10 +88,9 @@ int main()
 {
     srand(time(NULL));
     TripleTree cTree;
-    for (int i = 0; i < 27; i++) 
+    for (int i = 0; i < 30; i++) 
     {
         cTree.AddVertex(doRand());
     }
     cTree.PrintAll();
-    cout << "Hello" << endl;
 }
