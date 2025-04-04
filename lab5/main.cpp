@@ -44,7 +44,7 @@ void initGraph(GRAPH *g, bool directed) {
 
 // Добавление ребра в граф
 void insertEdge(GRAPH *g, int x, int y, bool directed) {
-    EDGE *p = (EDGE *)malloc(sizeof(EDGE));
+    EDGE *p = new EDGE();
     p->y = y;
     p->weight = 1; // Степень дружбы (вес ребра)
     p->pnext = g->edges[x];
