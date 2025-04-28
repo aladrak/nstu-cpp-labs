@@ -1,6 +1,9 @@
 // Вариант 5
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <cstring>
 #include <stdio.h>
 #include <stdlib.h>
 #include <queue>
@@ -20,26 +23,21 @@ struct GRAPH {
     bool directed;
     int nvertices;  // Количество вершин фактическое
     int nedges;     // Количество ребер фактическое
-    char** vertices;// Массив названий вершин
+    string *vertices;// Массив названий вершин
     int degrees[MAXV];
-    EDGE* edges[MAXV];
+    EDGE *edges[MAXV];
 };
 
-// Инициализация графа
 void initGraph(GRAPH *g, bool directed) {
     g->nvertices = 0;
     g->nedges = 0;
     g->directed = directed;
 
     EDGE **edgePtr = g->edges;
-    for (int i = 0; i < MAXV; ++i, ++edgePtr) {
-        *edgePtr = nullptr;
-    }
-
+    for (int i = 0; i < MAXV; ++i, ++edgePtr) *edgePtr = nullptr;
+    
     int *degreePtr = g->degrees;
-    for (int i = 0; i < MAXV; ++i, ++degreePtr) {
-        *degreePtr = 0;
-    }
+    for (int i = 0; i < MAXV; ++i, ++degreePtr) *degreePtr = 0;
 }
 
 // Добавление ребра в граф
@@ -72,62 +70,48 @@ void reverse(int *begin, int *end) {
 void readGraph(GRAPH *g, bool directed, char *efilename, char *vfilename) {
     initGraph(g, directed);
 
-    FILE *fp;
-    fp = fopen(vfilename, "r");
-    if (fp == NULL) 
+    ifstream f(vfilename, ios::in);
+    if (!f.is_open()) { cerr << "File read error!" << endl; return; }
+
+    for (string s; getline(f, s); ++(g->nvertices));
+    f.clear();
+    f.seekg(0, f.beg);
+    g->vertices = new string[g->nvertices];
+    string *vertexPtr = g->vertices;
+    for (string s; getline(f, s); ++vertexPtr)
+        *vertexPtr = s;
+    f.close();
+
+    f.open(efilename, ios::in);
+    if (!f.is_open()) { cerr << "File read error!" << endl; return; }
+
+    for (string s; getline(f, s);) 
     {
-        printf("Error while opening vertices file\n");
-        return;
+        int space = s.find(" ");
+        insertEdge(
+            g,
+            stoi(s.substr(0, space)),                   // x
+            stoi(s.substr(space + 1, s.length() - 1)),  // y
+            g->directed
+        );
     }
-
-    char buffer[MAXLEN];
-    while (fgets(buffer, MAXLEN, fp)) g->nvertices++;
-    fseek(fp, 0L, SEEK_SET);
-
-    g->vertices = new char*[g->nvertices];
-    char **vertexPtr = g->vertices;
-    while (fgets(buffer, MAXLEN, fp)) 
-    {
-        *vertexPtr = new char[MAXLEN];
-        sscanf(buffer, "%s", *vertexPtr);
-        vertexPtr++;
-    }
-    fclose(fp);
-
-    fp = fopen(efilename, "r");
-    if (fp == NULL) 
-    {
-        printf("Error while opening edges file\n");
-        return;
-    }
-
-    int m = 0;
-    while (fgets(buffer, MAXLEN, fp)) m++;
-    fseek(fp, 0L, SEEK_SET);
-
-    for (int i = 0; i < m; i++) 
-    {
-        int x, y;
-        fscanf(fp, "%d %d", &x, &y);
-        insertEdge(g, x, y, g->directed);
-    }
-    fclose(fp);
+    f.close();
 }
 
 void printGraph(GRAPH *g) {
     EDGE **edgePtr = g->edges;
-    char **vertexPtr = g->vertices;
+    string *vertexPtr = g->vertices;
     int *degreePtr = g->degrees;
 
     for (int i = 0; i < g->nvertices; ++i, ++edgePtr, ++vertexPtr, ++degreePtr) {
         EDGE *cur = *edgePtr;
-        printf("%d %s - (%d): ", i, *vertexPtr, *degreePtr);
+        cout << i << " " << *vertexPtr << " - (" << *degreePtr << "): ";
         while (cur) 
         {
-            printf(" %d %s", cur->y, g->vertices[cur->y]);
+            cout << " " << cur->y << " " << g->vertices[cur->y];
             cur = cur->pnext;
         }
-        printf("\n");
+        cout << endl;
     }
 }
 
@@ -182,10 +166,10 @@ int main() {
     GRAPH *g = new GRAPH;
     initGraph(g, false);
 
-    char filename_edges[] = "./edges.txt";
-    char filename_vertices[] = "./vertices.txt";
+    char path_edges[] = "./edges.txt";
+    char path_vertices[] = "./vertices.txt";
 
-    readGraph(g, g->directed, filename_edges, filename_vertices);
+    readGraph(g, g->directed, path_edges, path_vertices);
     printGraph(g);
     int userVertex;
     cout << "\nEnter your vertex number: ";
