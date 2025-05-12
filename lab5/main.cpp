@@ -85,8 +85,7 @@ void readGraph(GRAPH *g, bool directed, char *efilename, char *vfilename) {
     f.open(efilename, ios::in);
     if (!f.is_open()) { cerr << "File read error!" << endl; return; }
 
-    for (string s; getline(f, s);) 
-    {
+    for (string s; getline(f, s);) {
         int space = s.find(" ");
         insertEdge(
             g,
